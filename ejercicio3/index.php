@@ -16,11 +16,19 @@ if ($total == 0) {
     sembrar_datos($conn);
 }
 
-// TODO: Obtener todos los estudiantes con sentencia preparada (SELECT * FROM estudiantes)
-// $stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
-// $stmt->execute();
-// $resultado = $stmt->get_result();
+// Obtener todos los estudiantes con sentencia preparada
+$stmt = $conn->prepare("SELECT id, nombre, nota FROM estudiantes ORDER BY id");
+$stmt->execute();
+$resultado = $stmt->get_result();
 
+$estudiantes = [];
+if ($resultado) {
+    while ($fila = $resultado->fetch_assoc()) {
+        $estudiantes[] = $fila;
+    }
+    $resultado->free();
+}
+$stmt->close();
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -38,9 +46,45 @@ $conn->close();
 
     <h1>Lista de Estudiantes</h1>
 
-    <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
-    <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
-    <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Nota</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (count($estudiantes) > 0): ?>
+                <?php foreach ($estudiantes as $est): ?>
+                    <?php
+                        $nota = (float)$est['nota'];
+                        if ($nota >= 90) {
+                            $clase_nota = 'nota-alta';
+                        } elseif ($nota >= 70) {
+                            $clase_nota = 'nota-media';
+                        } else {
+                            $clase_nota = 'nota-baja';
+                        }
+                    ?>
+                    <tr class="<?php echo $clase_nota; ?>">
+                        <td><?php echo htmlspecialchars($est['id']); ?></td>
+                        <td><?php echo htmlspecialchars($est['nombre']); ?></td>
+                        <td><?php echo number_format($nota, 2, '.', ''); ?></td>
+                        <td>
+                            <a href="editar.php?id=<?php echo urlencode($est['id']); ?>">Editar</a> |
+                            <a href="eliminar.php?id=<?php echo urlencode($est['id']); ?>">Eliminar</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="4">No hay estudiantes registrados.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
 
 </body>
 </html>

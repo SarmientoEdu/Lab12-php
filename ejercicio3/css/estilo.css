@@ -42,20 +42,106 @@ nav a:hover {
 }
 
 /* ── Tabla de estudiantes ──────────────────────────────────────────── */
-/* TODO: Estilo para table (bordes, border-collapse, width 100%) */
-/* TODO: Estilo para th (background distinto al body, color blanco) */
-/* TODO: Estilo para td (padding, border) */
-/* TODO: Filas alternadas con tr:nth-child(even) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    margin-bottom: 20px;
+}
+
+th {
+    background-color: #2c3e50;
+    color: #ffffff;
+    text-align: left;
+    padding: 12px;
+    border: 1px solid #bdc3c7;
+}
+
+td {
+    padding: 10px 12px;
+    border: 1px solid #bdc3c7;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f4f6;
+}
+
+td a {
+    color: #2980b9;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
 
 /* ── Clases de nota (REQUERIDAS por el autograde) ─────────────────── */
-/* TODO: .nota-alta  → fondo verde claro (nota >= 90) */
-/* TODO: .nota-media → fondo amarillo claro (70 <= nota < 90) */
-/* TODO: .nota-baja  → fondo rojo claro (nota < 70) */
+.nota-alta {
+    background-color: #d4edda !important;
+    color: #155724;
+}
+
+.nota-media {
+    background-color: #fff3cd !important;
+    color: #856404;
+}
+
+.nota-baja {
+    background-color: #f8d7da !important;
+    color: #721c24;
+}
 
 /* ── Formularios ───────────────────────────────────────────────────── */
-/* TODO: Estilo para label (display block, margin-bottom) */
-/* TODO: Estilo para input[type="text"], input[type="number"] (width, padding, border) */
-/* TODO: Estilo para button (color de fondo, color texto, padding, cursor pointer) */
+form {
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    max-width: 450px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+button {
+    background-color: #2980b9;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #1f6391;
+}
+
+form a {
+    margin-left: 12px;
+    color: #7f8c8d;
+    text-decoration: none;
+}
+
+form a:hover {
+    text-decoration: underline;
+}
 
 /* ── Mensajes de error ─────────────────────────────────────────────── */
 .error {
@@ -68,7 +154,28 @@ nav a:hover {
 }
 
 /* ── Clases para tabla-reporte del Ejercicio 2 ─────────────────────── */
-.tabla-reporte { border-collapse: collapse; width: 100%; }
-.tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; }
-.tabla-reporte th { background-color: #4a90d9; color: white; }
-/* TODO: .fila-aprobado y .fila-minimo */
+.tabla-reporte {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.tabla-reporte th,
+.tabla-reporte td {
+    border: 1px solid #ccc;
+    padding: 8px;
+}
+
+.tabla-reporte th {
+    background-color: #4a90d9;
+    color: white;
+}
+
+.fila-aprobado {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.fila-minimo {
+    background-color: #fff3cd;
+    color: #856404;
+}
