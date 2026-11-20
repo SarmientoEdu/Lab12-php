@@ -1,4 +1,4 @@
-<?php
+ <?php
 /**
  * Lab 12 - Ejercicio 3: Editar estudiante
  * Implementa las secciones marcadas con TODO.
@@ -15,22 +15,39 @@ if ($id <= 0) {
 }
 
 // TODO: Cargar datos del estudiante con sentencia preparada usando $id
-// $stmt = $conn->prepare("SELECT * FROM estudiantes WHERE id = ?");
-// $stmt->bind_param('i', $id);
-// $stmt->execute();
-// $estudiante = $stmt->get_result()->fetch_assoc();
-// if (!$estudiante) { header('Location: index.php'); exit; }
-$estudiante = ['id' => $id, 'nombre' => '', 'nota' => '']; // Elimina cuando implementes
+$stmt = $conn->prepare("SELECT * FROM estudiantes WHERE id = ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$estudiante = $stmt->get_result()->fetch_assoc();
+if (!$estudiante) { 
+    $stmt->close();
+    $conn->close();
+    header('Location: index.php'); 
+    exit; 
+}
+$stmt->close();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre'] ?? '');
     $nota   = $_POST['nota'] ?? '';
 
     // TODO: Validar campos (igual que agregar.php)
+    if (empty($nombre)) {
+        $error = "El nombre es obligatorio.";
+    } elseif (!is_numeric($nota) || $nota < 0 || $nota > 100) {
+        $error = "La nota debe ser un número válido entre 0 y 100.";
+    }
 
     if (empty($error)) {
         // TODO: UPDATE con sentencia preparada
+        $stmt_update = $conn->prepare("UPDATE estudiantes SET nombre = ?, nota = ? WHERE id = ?");
+        $stmt_update->bind_param("sdi", $nombre, $nota, $id);
+        $stmt_update->execute();
+        $stmt_update->close();
+        
         // TODO: Redirigir a index.php
+        header('Location: index.php');
+        exit;
     }
 }
 

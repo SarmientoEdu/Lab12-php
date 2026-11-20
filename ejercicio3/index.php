@@ -17,9 +17,9 @@ if ($total == 0) {
 }
 
 // TODO: Obtener todos los estudiantes con sentencia preparada (SELECT * FROM estudiantes)
-// $stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
-// $stmt->execute();
-// $resultado = $stmt->get_result();
+$stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
+$stmt->execute();
+$resultado = $stmt->get_result();
 
 $conn->close();
 ?>
@@ -41,6 +41,38 @@ $conn->close();
     <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
     <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
     <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Nota</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($fila = $resultado->fetch_assoc()): ?>
+                <?php
+                // Determinar la clase CSS según la nota
+                $clase_nota = 'nota-baja';
+                if ($fila['nota'] >= 90) {
+                    $clase_nota = 'nota-alta';
+                } elseif ($fila['nota'] >= 70) {
+                    $clase_nota = 'nota-media';
+                }
+                ?>
+                <tr class="<?= $clase_nota ?>">
+                    <td><?= $fila['id'] ?></td>
+                    <td><?= htmlspecialchars($fila['nombre']) ?></td>
+                    <td><?= number_format($fila['nota'], 2) ?></td>
+                    <td>
+                        <a href="editar.php?id=<?= $fila['id'] ?>">Editar</a> | 
+                        <a href="eliminar.php?id=<?= $fila['id'] ?>">Eliminar</a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
 
 </body>
 </html>
