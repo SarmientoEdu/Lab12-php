@@ -20,17 +20,48 @@ if ($id <= 0) {
 // $stmt->execute();
 // $estudiante = $stmt->get_result()->fetch_assoc();
 // if (!$estudiante) { header('Location: index.php'); exit; }
-$estudiante = ['id' => $id, 'nombre' => '', 'nota' => '']; // Elimina cuando implementes
+$stmt = $conn->prepare("SELECT id, nombre, nota FROM estudiantes WHERE id = ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$estudiante = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$estudiante) {
+    $conn->close();
+    header('Location: index.php');
+    exit;
+}
+
+// Elimina cuando implementes
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre'] ?? '');
     $nota   = $_POST['nota'] ?? '';
 
     // TODO: Validar campos (igual que agregar.php)
+    if ($nombre === '') {
+        $error = 'El nombre es obligatorio.';
+    } elseif ($nota === '' || !is_numeric($nota)) {
+        $error = 'La nota debe ser un número válido.';
+    } else {
+        $nota_num = (float) $nota;
+        if ($nota_num < 0 || $nota_num > 100) {
+            $error = 'La nota debe estar entre 0 y 100.';
+        }
+    }
 
     if (empty($error)) {
         // TODO: UPDATE con sentencia preparada
         // TODO: Redirigir a index.php
+        $stmt = $conn->prepare("UPDATE estudiantes SET nombre = ?, nota = ? WHERE id = ?");
+        $stmt->bind_param('sdi', $nombre, $nota_num, $id);
+        $stmt->execute();
+        $stmt->close();
+
+        $conn->close();
+
+        header('Location: index.php');
+        exit;
     }
 }
 

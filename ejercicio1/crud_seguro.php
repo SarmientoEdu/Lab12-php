@@ -13,15 +13,26 @@ $datos = generar_datos(SEMILLA);
 // ─── FUNCIÓN 1: Insertar ────────────────────────────────────────────────────
 function insertar_estudiante(mysqli $conn, string $nombre, float $nota): int {
     // TODO: Usar prepare/bind_param/execute para INSERT
+      $stmt = $conn->prepare("INSERT INTO estudiantes (nombre, nota) VALUES (?, ?)");
+    $stmt->bind_param("sd", $nombre, $nota);
+    $stmt->execute();
+    $id = $conn->insert_id;
+    $stmt->close();
     // TODO: Retornar $conn->insert_id (el ID generado)
-    return 0; // Elimina esta línea cuando implementes la función
+    return $id; // Elimina esta línea cuando implementes la función
 }
 
 // ─── FUNCIÓN 2: Buscar por nombre ───────────────────────────────────────────
 function buscar_por_nombre(mysqli $conn, string $nombre): ?array {
     // TODO: Usar prepare/bind_param/execute/get_result para SELECT
+       $stmt = $conn->prepare("SELECT id, nombre, nota FROM estudiantes WHERE nombre = ?");
+    $stmt->bind_param("s", $nombre);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    $fila = $resultado->fetch_assoc();
+    $stmt->close();
     // TODO: Retornar la fila como array asociativo, o null si no existe
-    return null; // Elimina esta línea cuando implementes la función
+    return $fila ?: null; // Elimina esta línea cuando implementes la función
 }
 
 // ─── FUNCIÓN 3: Actualizar nota ─────────────────────────────────────────────

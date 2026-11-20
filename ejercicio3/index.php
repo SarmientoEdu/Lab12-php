@@ -20,6 +20,15 @@ if ($total == 0) {
 // $stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
 // $stmt->execute();
 // $resultado = $stmt->get_result();
+$stmt = $conn->prepare("SELECT id, nombre, nota FROM estudiantes ORDER BY id");
+$stmt->execute();
+$resultado = $stmt->get_result();
+
+$estudiantes = [];
+while ($fila = $resultado->fetch_assoc()) {
+    $estudiantes[] = $fila;
+}
+$stmt->close();
 
 $conn->close();
 ?>
@@ -41,6 +50,39 @@ $conn->close();
     <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
     <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
     <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
-
+     <table class="tabla-estudiantes">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Nota</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($estudiantes as $est): ?>
+                <?php
+                $nota = (float) $est['nota'];
+                if ($nota >= 90) {
+                    $clase_nota = 'nota-alta';
+                } elseif ($nota >= 70) {
+                    $clase_nota = 'nota-media';
+                } else {
+                    $clase_nota = 'nota-baja';
+                }
+                $id = (int) $est['id'];
+                ?>
+                <tr class="<?php echo $clase_nota; ?>">
+                    <td><?php echo $id; ?></td>
+                    <td><?php echo htmlspecialchars($est['nombre']); ?></td>
+                    <td><?php echo number_format($nota, 2); ?></td>
+                    <td>
+                        <a href="editar.php?id=<?php echo $id; ?>">Editar</a> |
+                        <a href="eliminar.php?id=<?php echo $id; ?>">Eliminar</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </body>
 </html>

@@ -14,11 +14,34 @@ if ($id <= 0) {
 }
 
 // TODO: Cargar nombre del estudiante con sentencia preparada (para mostrarlo en la confirmación)
-$nombre_estudiante = "ID $id"; // Elimina cuando implementes
+// Elimina cuando 
+$stmt = $conn->prepare("SELECT nombre FROM estudiantes WHERE id = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$resultado = $stmt->get_result();
+$estudiante = $resultado->fetch_assoc();
+$stmt->close();
+
+if (!$estudiante) {
+    $conn->close();
+    header('Location: index.php');
+    exit;
+}
+
+$nombre_estudiante = $estudiante['nombre'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar'])) {
     // TODO: DELETE con sentencia preparada
     // TODO: Redirigir a index.php
+    $stmt = $conn->prepare("DELETE FROM estudiantes WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $stmt->close();
+
+    $conn->close();
+
+    header('Location: index.php');
+    exit;
 }
 
 $conn->close();
