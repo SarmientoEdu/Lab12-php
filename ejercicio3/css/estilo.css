@@ -46,16 +46,89 @@ nav a:hover {
 /* TODO: Estilo para th (background distinto al body, color blanco) */
 /* TODO: Estilo para td (padding, border) */
 /* TODO: Filas alternadas con tr:nth-child(even) */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+}
+
+th {
+    background-color: #2c3e50;
+    color: #ffffff;
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
 
 /* ── Clases de nota (REQUERIDAS por el autograde) ─────────────────── */
 /* TODO: .nota-alta  → fondo verde claro (nota >= 90) */
 /* TODO: .nota-media → fondo amarillo claro (70 <= nota < 90) */
 /* TODO: .nota-baja  → fondo rojo claro (nota < 70) */
+.nota-alta {
+    background-color: #d4edda;
+}
+
+.nota-media {
+    background-color: #fff3cd;
+}
+
+.nota-baja {
+    background-color: #f8d7da;
+}
 
 /* ── Formularios ───────────────────────────────────────────────────── */
 /* TODO: Estilo para label (display block, margin-bottom) */
 /* TODO: Estilo para input[type="text"], input[type="number"] (width, padding, border) */
 /* TODO: Estilo para button (color de fondo, color texto, padding, cursor pointer) */
+
+form {
+    max-width: 450px;
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+button {
+    background-color: #2c3e50;
+    color: #ffffff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #3498db;
+}
 
 /* ── Mensajes de error ─────────────────────────────────────────────── */
 .error {
@@ -70,5 +143,7 @@ nav a:hover {
 /* ── Clases para tabla-reporte del Ejercicio 2 ─────────────────────── */
 .tabla-reporte { border-collapse: collapse; width: 100%; }
 .tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; }
-.tabla-reporte th { background-color: #4a90d9; color: white; }
+.tabla-reporte th { background-color: #4a90d9; color: white;}
 /* TODO: .fila-aprobado y .fila-minimo */
+.fila-aprobado { background-color: #d4edda; }
+.fila-minimo { background-color: #fff3cd; }
