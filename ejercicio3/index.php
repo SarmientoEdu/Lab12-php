@@ -1,7 +1,6 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Listar estudiantes
- * Implementa las secciones marcadas con TODO.
  */
 require_once '../ejercicio1/config_db.php';
 require_once '../ejercicio1/config_semilla.php';
@@ -16,12 +15,20 @@ if ($total == 0) {
     sembrar_datos($conn);
 }
 
-// TODO: Obtener todos los estudiantes con sentencia preparada (SELECT * FROM estudiantes)
-// $stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
-// $stmt->execute();
-// $resultado = $stmt->get_result();
+// Obtener todos los estudiantes con sentencia preparada
+$stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
+$stmt->execute();
+$estudiantes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 $conn->close();
+
+// Devuelve la clase CSS según la nota
+function clase_nota(float $nota): string {
+    if ($nota >= 90) return 'nota-alta';
+    if ($nota >= 70) return 'nota-media';
+    return 'nota-baja';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -38,9 +45,26 @@ $conn->close();
 
     <h1>Lista de Estudiantes</h1>
 
-    <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
-    <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
-    <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
+    <a class="btn" href="agregar.php">Agregar estudiante</a>
 
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Nota</th>
+            <th>Acciones</th>
+        </tr>
+        <?php foreach ($estudiantes as $e): ?>
+        <tr class="<?= clase_nota((float)$e['nota']) ?>">
+            <td><?= $e['id'] ?></td>
+            <td><?= htmlspecialchars($e['nombre']) ?></td>
+            <td><?= number_format($e['nota'], 2) ?></td>
+            <td>
+                <a href="editar.php?id=<?= $e['id'] ?>">Editar</a> |
+                <a href="eliminar.php?id=<?= $e['id'] ?>">Eliminar</a>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
 </body>
 </html>

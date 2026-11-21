@@ -1,7 +1,4 @@
-/* Lab 12 - Ejercicio 3: Estilos base de la aplicación web
-   Completa las secciones marcadas con TODO.
-   NO usar Bootstrap, Tailwind ni ninguna librería externa.
-*/
+/* Lab 12 - Ejercicio 3: Estilos de la aplicación web */
 
 /* ── Reset y tipografía ────────────────────────────────────────────── */
 * {
@@ -42,20 +39,77 @@ nav a:hover {
 }
 
 /* ── Tabla de estudiantes ──────────────────────────────────────────── */
-/* TODO: Estilo para table (bordes, border-collapse, width 100%) */
-/* TODO: Estilo para th (background distinto al body, color blanco) */
-/* TODO: Estilo para td (padding, border) */
-/* TODO: Filas alternadas con tr:nth-child(even) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+th {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+}
+
+td {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+}
+
+tr:nth-child(even) {
+    background-color: #ecf0f1;
+}
 
 /* ── Clases de nota (REQUERIDAS por el autograde) ─────────────────── */
-/* TODO: .nota-alta  → fondo verde claro (nota >= 90) */
-/* TODO: .nota-media → fondo amarillo claro (70 <= nota < 90) */
-/* TODO: .nota-baja  → fondo rojo claro (nota < 70) */
+tr.nota-alta  { background-color: #d4edda; }
+tr.nota-media { background-color: #fff3cd; }
+tr.nota-baja  { background-color: #f8d7da; }
 
 /* ── Formularios ───────────────────────────────────────────────────── */
-/* TODO: Estilo para label (display block, margin-bottom) */
-/* TODO: Estilo para input[type="text"], input[type="number"] (width, padding, border) */
-/* TODO: Estilo para button (color de fondo, color texto, padding, cursor pointer) */
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    max-width: 320px;
+    padding: 8px;
+    margin-bottom: 14px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #2980b9;
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #1f6391;
+}
+
+button.peligro {
+    background-color: #c0392b;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #2980b9;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-bottom: 14px;
+}
 
 /* ── Mensajes de error ─────────────────────────────────────────────── */
 .error {
@@ -71,4 +125,5 @@ nav a:hover {
 .tabla-reporte { border-collapse: collapse; width: 100%; }
 .tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; }
 .tabla-reporte th { background-color: #4a90d9; color: white; }
-/* TODO: .fila-aprobado y .fila-minimo */
+.fila-aprobado { background-color: #d4edda; }
+.fila-minimo   { background-color: #fff3cd; }
