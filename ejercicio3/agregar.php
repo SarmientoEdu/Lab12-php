@@ -1,7 +1,6 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Agregar estudiante
- * Implementa las secciones marcadas con TODO.
  */
 require_once '../ejercicio1/config_db.php';
 
@@ -11,14 +10,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre'] ?? '');
     $nota   = $_POST['nota'] ?? '';
 
-    // TODO: Validar que $nombre no esté vacío y que $nota esté entre 0 y 100
-    // Si hay error, guardar mensaje en $error
+    // Validación: nombre no vacío y nota numérica entre 0 y 100
+    if ($nombre === '') {
+        $error = 'El nombre es obligatorio.';
+    } elseif (!is_numeric($nota) || (float)$nota < 0 || (float)$nota > 100) {
+        $error = 'La nota debe ser un número entre 0 y 100.';
+    }
 
     if (empty($error)) {
         $conn = conectar();
-        // TODO: Insertar con sentencia preparada (prepare/bind_param/execute)
-        // TODO: Redirigir a index.php con header('Location: index.php'); exit;
+        $nota_num = (float)$nota;
+        $stmt = $conn->prepare("INSERT INTO estudiantes (nombre, nota) VALUES (?, ?)");
+        $stmt->bind_param('sd', $nombre, $nota_num);
+        $stmt->execute();
+        $stmt->close();
         $conn->close();
+        header('Location: index.php');
+        exit;
     }
 }
 ?>
