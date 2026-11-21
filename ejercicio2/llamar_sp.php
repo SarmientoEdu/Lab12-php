@@ -1,50 +1,40 @@
 <?php
-/**
- * Lab 12 - Ejercicio 2: Llamar procedimientos almacenados desde PHP
- * Completa las secciones marcadas con TODO.
- */
-require_once '../ejercicio1/config_db.php';
-require_once '../ejercicio1/config_semilla.php';
+require_once __DIR__ . '/../ejercicio1/config_db.php';
+require_once __DIR__ . '/../ejercicio1/config_semilla.php';
 
 $conn = conectar();
 $datos = generar_datos(SEMILLA);
-
-$nota_minima = 60.00;
-
-// TODO: Llamar al procedimiento sp_insertar_estudiante
-// con $datos['nombre'] y $datos['nota']
-// Pista: $conn->query("CALL sp_insertar_estudiante(?, ?)") con sentencia preparada
-//        O bien: $conn->query("CALL sp_insertar_estudiante('{$datos['nombre']}', {$datos['nota']})")
-//        (en este caso el valor no viene del usuario, sino de la semilla; justifica tu elección)
-
-// TODO: Mostrar mensaje de confirmación con el formato exacto:
-// "Procedimiento ejecutado: sp_insertar_estudiante('{nombre}', {nota})"
-
-// TODO: Llamar a sp_reporte_aprobados con $nota_minima
-
-// TODO: Mostrar los resultados en una tabla HTML con:
-//   - clase CSS "tabla-reporte" en el <table>
-//   - clase "fila-aprobado" en <tr> si nota >= 70
-//   - clase "fila-minimo" en <tr> si nota < 70
-//   - columnas: ID | Nombre | Nota
-
+$nombre = $datos['nombre'];
+$nota = $datos['nota'];
+$minima = 60.00;
+$stmt = $conn->prepare('CALL sp_insertar_estudiante(?, ?)');
+$stmt->bind_param('sd', $nombre, $nota);
+$stmt->execute();
+$stmt->close();
+while ($conn->more_results() && $conn->next_result()) {
+    if ($extra = $conn->store_result()) $extra->free();
+}
+$stmt = $conn->prepare('CALL sp_reporte_aprobados(?)');
+$stmt->bind_param('d', $minima);
+$stmt->execute();
+$filas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+while ($conn->more_results() && $conn->next_result()) {
+    if ($extra = $conn->store_result()) $extra->free();
+}
 $conn->close();
 ?>
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Lab 12 - Ejercicio 2</title>
-    <style>
-        /* TODO: Agregar estilos para .tabla-reporte, .fila-aprobado, .fila-minimo */
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .tabla-reporte { border-collapse: collapse; width: 100%; }
-        .tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; }
-        .tabla-reporte th { background-color: #4a90d9; color: white; }
-        /* TODO: .fila-aprobado y .fila-minimo */
-    </style>
-</head>
-<body>
-    <!-- El PHP de arriba genera la salida aquí -->
-</body>
-</html>
+<html lang="es"><head><meta charset="UTF-8"><title>Reporte de aprobados</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f2f5f8;color:#172d43;margin:48px}
+main{background:white;border:1px solid #ced9e3;border-radius:8px;padding:32px}
+.tabla-reporte{border-collapse:collapse;width:100%}.tabla-reporte th,.tabla-reporte td{border:1px solid #bccbd5;padding:10px;text-align:left}
+.tabla-reporte th{background:#245e80;color:white}.fila-aprobado{background:#e2f4e8}.fila-minimo{background:#fff2c9}
+</style></head><body><main><p>LABORATORIO 12 · EJERCICIO 2</p><h1>Reporte de estudiantes aprobados</h1>
+<p>Alejandro Sáenz · Semilla <?= SEMILLA ?></p>
+<p>Procedimiento ejecutado: sp_insertar_estudiante('<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') ?>', <?= number_format($nota, 2, '.', '') ?>)</p>
+<table class="tabla-reporte"><thead><tr><th>ID</th><th>Nombre</th><th>Nota</th></tr></thead><tbody>
+<?php foreach ($filas as $fila): ?>
+<tr class="<?= (float)$fila['nota'] >= 70 ? 'fila-aprobado' : 'fila-minimo' ?>"><td><?= (int)$fila['id'] ?></td><td><?= htmlspecialchars($fila['nombre'], ENT_QUOTES, 'UTF-8') ?></td><td><?= number_format((float)$fila['nota'], 2, '.', '') ?></td></tr>
+<?php endforeach; ?></tbody></table></main></body></html>

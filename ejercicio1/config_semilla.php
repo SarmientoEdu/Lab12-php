@@ -5,8 +5,7 @@
  * Ejemplo: si tu cédula es 8-123-456, escribe 456.
  */
 
-// TODO: Reemplaza 0 por los últimos 3 dígitos de tu cédula
-define('SEMILLA', 0);
+define('SEMILLA', 343);
 
 // Generador determinista de datos de prueba basado en la semilla
 function generar_datos(int $semilla): array {

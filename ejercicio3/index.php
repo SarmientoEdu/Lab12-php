@@ -1,7 +1,7 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Listar estudiantes
- * Implementa las secciones marcadas con TODO.
+ * Listado de estudiantes.
  */
 require_once '../ejercicio1/config_db.php';
 require_once '../ejercicio1/config_semilla.php';
@@ -16,10 +16,10 @@ if ($total == 0) {
     sembrar_datos($conn);
 }
 
-// TODO: Obtener todos los estudiantes con sentencia preparada (SELECT * FROM estudiantes)
-// $stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
-// $stmt->execute();
-// $resultado = $stmt->get_result();
+$stmt = $conn->prepare("SELECT id, nombre, nota FROM estudiantes ORDER BY id");
+$stmt->execute();
+$filas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 $conn->close();
 ?>
@@ -38,9 +38,14 @@ $conn->close();
 
     <h1>Lista de Estudiantes</h1>
 
-    <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
-    <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
-    <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
+    <p>Alejandro Sáenz · Semilla <?= SEMILLA ?></p>
+    <table><thead><tr><th>ID</th><th>Nombre</th><th>Nota</th><th>Acciones</th></tr></thead><tbody>
+    <?php foreach ($filas as $fila): $id = (int)$fila['id']; $nota = (float)$fila['nota']; ?>
+    <tr class="<?= $nota >= 90 ? 'nota-alta' : ($nota >= 70 ? 'nota-media' : 'nota-baja') ?>">
+        <td><?= $id ?></td><td><?= htmlspecialchars($fila['nombre'], ENT_QUOTES, 'UTF-8') ?></td><td><?= number_format($nota, 2) ?></td>
+        <td><a href="editar.php?id=<?= $id ?>">Editar</a> · <a href="eliminar.php?id=<?= $id ?>">Eliminar</a></td>
+    </tr>
+    <?php endforeach; ?></tbody></table>
 
 </body>
 </html>

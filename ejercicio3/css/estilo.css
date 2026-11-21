@@ -72,3 +72,15 @@ nav a:hover {
 .tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; }
 .tabla-reporte th { background-color: #4a90d9; color: white; }
 /* TODO: .fila-aprobado y .fila-minimo */
+
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+th, td { border: 1px solid #b9c7d0; padding: 10px; text-align: left; }
+th { background: #285f7f; color: white; }
+tbody tr:nth-child(even) { filter: brightness(.97); }
+.nota-alta { background: #dff4e7; }
+.nota-media { background: #fff3c8; }
+.nota-baja { background: #fbe2e2; }
+form { max-width: 480px; }
+label { display: block; margin: 16px 0 6px; }
+input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #9daeb9; border-radius: 4px; }
+button { margin: 18px 0; padding: 10px 18px; background: #285f7f; color: white; border: 0; border-radius: 4px; cursor: pointer; }

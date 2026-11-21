@@ -1,24 +1,32 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Agregar estudiante
- * Implementa las secciones marcadas con TODO.
+ * Alta de estudiantes.
  */
 require_once '../ejercicio1/config_db.php';
 
 $error = '';
+$nombre = '';
+$nota = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre'] ?? '');
-    $nota   = $_POST['nota'] ?? '';
+    $nombre = trim((string)(filter_input(INPUT_POST, 'nombre') ?? ''));
+    $nota = (string)(filter_input(INPUT_POST, 'nota') ?? '');
 
-    // TODO: Validar que $nombre no esté vacío y que $nota esté entre 0 y 100
-    // Si hay error, guardar mensaje en $error
+    if ($nombre === '' || strlen($nombre) > 100 || !is_numeric($nota) || (float)$nota < 0 || (float)$nota > 100) {
+        $error = 'Escribe un nombre válido y una nota entre 0 y 100.';
+    }
 
     if (empty($error)) {
         $conn = conectar();
-        // TODO: Insertar con sentencia preparada (prepare/bind_param/execute)
-        // TODO: Redirigir a index.php con header('Location: index.php'); exit;
+        $valor_nota = (float)$nota;
+        $stmt = $conn->prepare('INSERT INTO estudiantes (nombre, nota) VALUES (?, ?)');
+        $stmt->bind_param('sd', $nombre, $valor_nota);
+        $stmt->execute();
+        $stmt->close();
         $conn->close();
+        header('Location: index.php');
+        exit;
     }
 }
 ?>
@@ -43,11 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST" action="agregar.php">
         <label for="nombre">Nombre:</label>
         <input type="text" id="nombre" name="nombre"
-               value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>" required>
+               value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') ?>" required>
 
         <label for="nota">Nota (0–100):</label>
         <input type="number" id="nota" name="nota" min="0" max="100" step="0.01"
-               value="<?= htmlspecialchars($_POST['nota'] ?? '') ?>" required>
+               value="<?= htmlspecialchars($nota, ENT_QUOTES, 'UTF-8') ?>" required>
 
         <button type="submit">Agregar</button>
     </form>

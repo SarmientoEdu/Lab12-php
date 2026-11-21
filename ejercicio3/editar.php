@@ -1,12 +1,12 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Editar estudiante
- * Implementa las secciones marcadas con TODO.
+ * Edición de estudiantes.
  */
 require_once '../ejercicio1/config_db.php';
 
 $conn = conectar();
-$id   = (int)($_GET['id'] ?? 0);
+$id   = (int)(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0);
 $error = '';
 
 if ($id <= 0) {
@@ -14,23 +14,30 @@ if ($id <= 0) {
     exit;
 }
 
-// TODO: Cargar datos del estudiante con sentencia preparada usando $id
-// $stmt = $conn->prepare("SELECT * FROM estudiantes WHERE id = ?");
-// $stmt->bind_param('i', $id);
-// $stmt->execute();
-// $estudiante = $stmt->get_result()->fetch_assoc();
-// if (!$estudiante) { header('Location: index.php'); exit; }
-$estudiante = ['id' => $id, 'nombre' => '', 'nota' => '']; // Elimina cuando implementes
+$stmt = $conn->prepare('SELECT id, nombre, nota FROM estudiantes WHERE id = ?');
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$estudiante = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+if (!$estudiante) { $conn->close(); header('Location: index.php'); exit; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre'] ?? '');
-    $nota   = $_POST['nota'] ?? '';
+    $nombre = trim((string)(filter_input(INPUT_POST, 'nombre') ?? ''));
+    $nota = (string)(filter_input(INPUT_POST, 'nota') ?? '');
 
-    // TODO: Validar campos (igual que agregar.php)
+    if ($nombre === '' || strlen($nombre) > 100 || !is_numeric($nota) || (float)$nota < 0 || (float)$nota > 100) {
+        $error = 'Escribe un nombre válido y una nota entre 0 y 100.';
+    }
 
     if (empty($error)) {
-        // TODO: UPDATE con sentencia preparada
-        // TODO: Redirigir a index.php
+        $valor_nota = (float)$nota;
+        $stmt = $conn->prepare('UPDATE estudiantes SET nombre = ?, nota = ? WHERE id = ?');
+        $stmt->bind_param('sdi', $nombre, $valor_nota, $id);
+        $stmt->execute();
+        $stmt->close();
+        $conn->close();
+        header('Location: index.php');
+        exit;
     }
 }
 
@@ -57,11 +64,11 @@ $conn->close();
     <form method="POST" action="editar.php?id=<?= $id ?>">
         <label for="nombre">Nombre:</label>
         <input type="text" id="nombre" name="nombre"
-               value="<?= htmlspecialchars($_POST['nombre'] ?? $estudiante['nombre']) ?>" required>
+               value="<?= htmlspecialchars($nombre ?? $estudiante['nombre'], ENT_QUOTES, 'UTF-8') ?>" required>
 
         <label for="nota">Nota (0–100):</label>
         <input type="number" id="nota" name="nota" min="0" max="100" step="0.01"
-               value="<?= htmlspecialchars($_POST['nota'] ?? $estudiante['nota']) ?>" required>
+               value="<?= htmlspecialchars($nota ?? $estudiante['nota'], ENT_QUOTES, 'UTF-8') ?>" required>
 
         <button type="submit">Guardar Cambios</button>
     </form>
