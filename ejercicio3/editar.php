@@ -1,12 +1,11 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Editar estudiante
- * Implementa las secciones marcadas con TODO.
  */
 require_once '../ejercicio1/config_db.php';
 
-$conn = conectar();
-$id   = (int)($_GET['id'] ?? 0);
+$conn  = conectar();
+$id    = (int)($_GET['id'] ?? 0);
 $error = '';
 
 if ($id <= 0) {
@@ -14,23 +13,42 @@ if ($id <= 0) {
     exit;
 }
 
-// TODO: Cargar datos del estudiante con sentencia preparada usando $id
-// $stmt = $conn->prepare("SELECT * FROM estudiantes WHERE id = ?");
-// $stmt->bind_param('i', $id);
-// $stmt->execute();
-// $estudiante = $stmt->get_result()->fetch_assoc();
-// if (!$estudiante) { header('Location: index.php'); exit; }
-$estudiante = ['id' => $id, 'nombre' => '', 'nota' => '']; // Elimina cuando implementes
+// Cargar datos del estudiante con sentencia preparada
+$stmt = $conn->prepare("SELECT id, nombre, nota FROM estudiantes WHERE id = ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$estudiante = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$estudiante) {
+    $conn->close();
+    header('Location: index.php');
+    exit;
+}
+
+$nombre = $estudiante['nombre'];
+$nota   = $estudiante['nota'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre'] ?? '');
-    $nota   = $_POST['nota'] ?? '';
+    $entrada = $_POST;
+    $nombre  = trim($entrada['nombre'] ?? '');
+    $nota    = $entrada['nota'] ?? '';
 
-    // TODO: Validar campos (igual que agregar.php)
+    if ($nombre === '') {
+        $error = 'El nombre es obligatorio.';
+    } elseif (!is_numeric($nota) || $nota < 0 || $nota > 100) {
+        $error = 'La nota debe ser un número entre 0 y 100.';
+    }
 
     if (empty($error)) {
-        // TODO: UPDATE con sentencia preparada
-        // TODO: Redirigir a index.php
+        $nota_num = (float)$nota;
+        $stmt = $conn->prepare("UPDATE estudiantes SET nombre = ?, nota = ? WHERE id = ?");
+        $stmt->bind_param('sdi', $nombre, $nota_num, $id);
+        $stmt->execute();
+        $stmt->close();
+        $conn->close();
+        header('Location: index.php');
+        exit;
     }
 }
 
@@ -40,6 +58,7 @@ $conn->close();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lab 12 - Editar Estudiante</title>
     <link rel="stylesheet" href="css/estilo.css">
 </head>
@@ -48,7 +67,7 @@ $conn->close();
         <a href="index.php">← Volver a la lista</a>
     </nav>
 
-    <h1>Editar Estudiante</h1>
+    <h1>Editar Estudiante #<?= $id ?></h1>
 
     <?php if ($error): ?>
         <div class="error"><?= htmlspecialchars($error) ?></div>
@@ -56,12 +75,12 @@ $conn->close();
 
     <form method="POST" action="editar.php?id=<?= $id ?>">
         <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre"
-               value="<?= htmlspecialchars($_POST['nombre'] ?? $estudiante['nombre']) ?>" required>
+        <input type="text" id="nombre" name="nombre" maxlength="100"
+               value="<?= htmlspecialchars($nombre) ?>" required>
 
         <label for="nota">Nota (0–100):</label>
         <input type="number" id="nota" name="nota" min="0" max="100" step="0.01"
-               value="<?= htmlspecialchars($_POST['nota'] ?? $estudiante['nota']) ?>" required>
+               value="<?= htmlspecialchars((string)$nota) ?>" required>
 
         <button type="submit">Guardar Cambios</button>
     </form>

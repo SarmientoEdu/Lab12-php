@@ -1,7 +1,6 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Eliminar estudiante
- * Implementa las secciones marcadas con TODO.
  */
 require_once '../ejercicio1/config_db.php';
 
@@ -13,12 +12,32 @@ if ($id <= 0) {
     exit;
 }
 
-// TODO: Cargar nombre del estudiante con sentencia preparada (para mostrarlo en la confirmación)
-$nombre_estudiante = "ID $id"; // Elimina cuando implementes
+// Cargar nombre del estudiante con sentencia preparada
+$stmt = $conn->prepare("SELECT nombre FROM estudiantes WHERE id = ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$fila = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar'])) {
-    // TODO: DELETE con sentencia preparada
-    // TODO: Redirigir a index.php
+if (!$fila) {
+    $conn->close();
+    header('Location: index.php');
+    exit;
+}
+$nombre_estudiante = $fila['nombre'];
+
+$entrada = $_POST;
+$es_post = $_SERVER['REQUEST_METHOD'] === 'POST';
+
+if ($es_post && isset($entrada['confirmar'])) {
+    // DELETE con sentencia preparada
+    $stmt = $conn->prepare("DELETE FROM estudiantes WHERE id = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $stmt->close();
+    $conn->close();
+    header('Location: index.php');
+    exit;
 }
 
 $conn->close();
@@ -27,6 +46,7 @@ $conn->close();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lab 12 - Eliminar Estudiante</title>
     <link rel="stylesheet" href="css/estilo.css">
 </head>
@@ -37,13 +57,15 @@ $conn->close();
 
     <h1>Eliminar Estudiante</h1>
 
-    <p>¿Estás seguro de que deseas eliminar a
-       <strong><?= htmlspecialchars($nombre_estudiante) ?></strong>?
-    </p>
+    <div class="confirmacion">
+        <p>¿Estás seguro de que deseas eliminar a
+           <strong><?= htmlspecialchars($nombre_estudiante) ?></strong>?
+        </p>
 
-    <form method="POST" action="eliminar.php?id=<?= $id ?>">
-        <button type="submit" name="confirmar" value="1">Sí, eliminar</button>
-        <a href="index.php">Cancelar</a>
-    </form>
+        <form method="POST" action="eliminar.php?id=<?= $id ?>">
+            <button type="submit" name="confirmar" value="1" class="btn-peligro">Sí, eliminar</button>
+            <a class="cancelar" href="index.php">Cancelar</a>
+        </form>
+    </div>
 </body>
 </html>
