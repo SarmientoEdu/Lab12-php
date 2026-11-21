@@ -1,7 +1,6 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Listar estudiantes
- * Implementa las secciones marcadas con TODO.
  */
 require_once '../ejercicio1/config_db.php';
 require_once '../ejercicio1/config_semilla.php';
@@ -16,17 +15,27 @@ if ($total == 0) {
     sembrar_datos($conn);
 }
 
-// TODO: Obtener todos los estudiantes con sentencia preparada (SELECT * FROM estudiantes)
-// $stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
-// $stmt->execute();
-// $resultado = $stmt->get_result();
+// Obtener todos los estudiantes con sentencia preparada
+$stmt = $conn->prepare("SELECT id, nombre, nota FROM estudiantes ORDER BY id");
+$stmt->execute();
+$resultado = $stmt->get_result();
+$estudiantes = $resultado->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 $conn->close();
+
+// Devuelve la clase CSS según la nota
+function clase_nota(float $nota): string {
+    if ($nota >= 90) return 'nota-alta';
+    if ($nota >= 70) return 'nota-media';
+    return 'nota-baja';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lab 12 - Gestión de Estudiantes</title>
     <link rel="stylesheet" href="css/estilo.css">
 </head>
@@ -38,9 +47,34 @@ $conn->close();
 
     <h1>Lista de Estudiantes</h1>
 
-    <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
-    <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
-    <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
+    <p><a class="boton" href="agregar.php">+ Agregar estudiante</a></p>
 
+    <?php if (count($estudiantes) === 0): ?>
+        <p>No hay estudiantes registrados.</p>
+    <?php else: ?>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Nota</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($estudiantes as $e): ?>
+            <tr class="<?= clase_nota((float)$e['nota']) ?>">
+                <td><?= (int)$e['id'] ?></td>
+                <td><?= htmlspecialchars($e['nombre']) ?></td>
+                <td><?= number_format($e['nota'], 2) ?></td>
+                <td class="acciones">
+                    <a href="editar.php?id=<?= (int)$e['id'] ?>">Editar</a>
+                    <a class="peligro" href="eliminar.php?id=<?= (int)$e['id'] ?>">Eliminar</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
 </body>
 </html>
