@@ -1,9 +1,8 @@
-/* Lab 12 - Ejercicio 3: Estilos base de la aplicación web
-   Completa las secciones marcadas con TODO.
-   NO usar Bootstrap, Tailwind ni ninguna librería externa.
+/* Lab 12 - Ejercicio 3: Estilos de la aplicación web
+   CSS propio, sin librerías externas.
 */
 
-/* ── Reset y tipografía ────────────────────────────────────────────── */
+/* ── Reset y tipografía ───────────────────────────────────────────── */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -22,7 +21,7 @@ h1, h2 {
     margin-bottom: 16px;
 }
 
-/* ── Navegación ────────────────────────────────────────────────────── */
+/* ── Navegación ───────────────────────────────────────────────────── */
 nav {
     background-color: #2c3e50;
     padding: 10px 20px;
@@ -41,23 +40,94 @@ nav a:hover {
     color: #3498db;
 }
 
-/* ── Tabla de estudiantes ──────────────────────────────────────────── */
-/* TODO: Estilo para table (bordes, border-collapse, width 100%) */
-/* TODO: Estilo para th (background distinto al body, color blanco) */
-/* TODO: Estilo para td (padding, border) */
-/* TODO: Filas alternadas con tr:nth-child(even) */
+/* ── Tabla de estudiantes ─────────────────────────────────────────── */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    margin-top: 12px;
+}
 
-/* ── Clases de nota (REQUERIDAS por el autograde) ─────────────────── */
-/* TODO: .nota-alta  → fondo verde claro (nota >= 90) */
-/* TODO: .nota-media → fondo amarillo claro (70 <= nota < 90) */
-/* TODO: .nota-baja  → fondo rojo claro (nota < 70) */
+th {
+    background-color: #34495e;
+    color: #fff;
+    text-align: left;
+}
 
-/* ── Formularios ───────────────────────────────────────────────────── */
-/* TODO: Estilo para label (display block, margin-bottom) */
-/* TODO: Estilo para input[type="text"], input[type="number"] (width, padding, border) */
-/* TODO: Estilo para button (color de fondo, color texto, padding, cursor pointer) */
+th, td {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
 
-/* ── Mensajes de error ─────────────────────────────────────────────── */
+tr:nth-child(even) {
+    background-color: #eef2f5;
+}
+
+td a {
+    color: #2980b9;
+    margin-right: 10px;
+}
+
+/* ── Clases de nota (requeridas por el autograde) ─────────────────── */
+/* Se escriben también como tr.clase para ganar a tr:nth-child(even) */
+.nota-alta,
+tr.nota-alta {
+    background-color: #d4edda;
+}
+
+.nota-media,
+tr.nota-media {
+    background-color: #fff3cd;
+}
+
+.nota-baja,
+tr.nota-baja {
+    background-color: #f8d7da;
+}
+
+/* ── Formularios ──────────────────────────────────────────────────── */
+form {
+    max-width: 420px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 14px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+form a {
+    margin-left: 12px;
+    color: #555;
+}
+
+/* ── Mensajes de error ────────────────────────────────────────────── */
 .error {
     background-color: #f8d7da;
     color: #721c24;
@@ -67,8 +137,11 @@ nav a:hover {
     margin-bottom: 16px;
 }
 
-/* ── Clases para tabla-reporte del Ejercicio 2 ─────────────────────── */
+/* ── Clases para tabla-reporte del Ejercicio 2 ────────────────────── */
 .tabla-reporte { border-collapse: collapse; width: 100%; }
 .tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; }
 .tabla-reporte th { background-color: #4a90d9; color: white; }
-/* TODO: .fila-aprobado y .fila-minimo */
+.fila-aprobado,
+tr.fila-aprobado { background-color: #d4edda; }
+.fila-minimo,
+tr.fila-minimo { background-color: #fff3cd; }
