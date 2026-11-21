@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Lab 12 - Ejercicio 3: Editar estudiante
@@ -20,17 +21,44 @@ if ($id <= 0) {
 // $stmt->execute();
 // $estudiante = $stmt->get_result()->fetch_assoc();
 // if (!$estudiante) { header('Location: index.php'); exit; }
-$estudiante = ['id' => $id, 'nombre' => '', 'nota' => '']; // Elimina cuando implementes
+$stmt = $conn->prepare("SELECT * FROM estudiantes WHERE id = ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$estudiante = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$estudiante) {
+    $conn->close();
+    header('Location: index.php');
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre'] ?? '');
     $nota   = $_POST['nota'] ?? '';
 
     // TODO: Validar campos (igual que agregar.php)
+    if ($nombre === '') {
+        $error = 'El nombre no puede estar vacío.';
+    } elseif (!is_numeric($nota) || $nota < 0 || $nota > 100) {
+        $error = 'La nota debe estar entre 0 y 100.';
+    }
 
     if (empty($error)) {
         // TODO: UPDATE con sentencia preparada
+        $stmt = $conn->prepare(
+            "UPDATE estudiantes SET nombre = ?, nota = ? WHERE id = ?"
+        );
+
+        $nota = (float)$nota;
+        $stmt->bind_param("sdi", $nombre, $nota, $id);
+        $stmt->execute();
+        $stmt->close();
+
         // TODO: Redirigir a index.php
+        $conn->close();
+        header('Location: index.php');
+        exit;
     }
 }
 

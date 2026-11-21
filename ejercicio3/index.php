@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Lab 12 - Ejercicio 3: Listar estudiantes
@@ -21,6 +22,13 @@ if ($total == 0) {
 // $stmt->execute();
 // $resultado = $stmt->get_result();
 
+$stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
+$stmt->execute();
+$resultado = $stmt->get_result();
+
+$estudiantes = $resultado->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -41,6 +49,41 @@ $conn->close();
     <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
     <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
     <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Nota</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($estudiantes as $estudiante): ?>
+                <?php
+                    $nota = (float)$estudiante['nota'];
+
+                    if ($nota >= 90) {
+                        $clase = 'nota-alta';
+                    } elseif ($nota >= 70) {
+                        $clase = 'nota-media';
+                    } else {
+                        $clase = 'nota-baja';
+                    }
+                ?>
+                <tr class="<?php echo $clase; ?>">
+                    <td><?php echo (int)$estudiante['id']; ?></td>
+                    <td><?php echo htmlspecialchars($estudiante['nombre'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo number_format($nota, 2, '.', ''); ?></td>
+                    <td>
+                        <a href="editar.php?id=<?php echo (int)$estudiante['id']; ?>">Editar</a>
+                        <a href="eliminar.php?id=<?php echo (int)$estudiante['id']; ?>">Eliminar</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 
 </body>
 </html>

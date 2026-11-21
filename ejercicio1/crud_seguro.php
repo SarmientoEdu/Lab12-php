@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Lab 12 - Ejercicio 1: CRUD completo con sentencias preparadas
@@ -12,26 +13,54 @@ $datos = generar_datos(SEMILLA);
 
 // ─── FUNCIÓN 1: Insertar ────────────────────────────────────────────────────
 function insertar_estudiante(mysqli $conn, string $nombre, float $nota): int {
-    // TODO: Usar prepare/bind_param/execute para INSERT
-    // TODO: Retornar $conn->insert_id (el ID generado)
-    return 0; // Elimina esta línea cuando implementes la función
+    $stmt = $conn->prepare(
+        "INSERT INTO estudiantes (nombre, nota) VALUES (?, ?)"
+    );
+    $stmt->bind_param("sd", $nombre, $nota);
+    $stmt->execute();
+
+    $id = $conn->insert_id;
+    $stmt->close();
+
+    return $id;
 }
 
 // ─── FUNCIÓN 2: Buscar por nombre ───────────────────────────────────────────
 function buscar_por_nombre(mysqli $conn, string $nombre): ?array {
-    // TODO: Usar prepare/bind_param/execute/get_result para SELECT
-    // TODO: Retornar la fila como array asociativo, o null si no existe
-    return null; // Elimina esta línea cuando implementes la función
+    $stmt = $conn->prepare(
+        "SELECT * FROM estudiantes WHERE nombre = ?"
+    );
+    $stmt->bind_param("s", $nombre);
+    $stmt->execute();
+
+    $resultado = $stmt->get_result();
+    $fila = $resultado->fetch_assoc();
+
+    $stmt->close();
+
+    return $fila ?: null;
 }
 
 // ─── FUNCIÓN 3: Actualizar nota ─────────────────────────────────────────────
 function actualizar_nota(mysqli $conn, int $id, float $nueva_nota): void {
-    // TODO: Usar prepare/bind_param/execute para UPDATE
+    $stmt = $conn->prepare(
+        "UPDATE estudiantes SET nota = ? WHERE id = ?"
+    );
+    $stmt->bind_param("di", $nueva_nota, $id);
+    $stmt->execute();
+
+    $stmt->close();
 }
 
 // ─── FUNCIÓN 4: Eliminar estudiante ─────────────────────────────────────────
 function eliminar_estudiante(mysqli $conn, int $id): void {
-    // TODO: Usar prepare/bind_param/execute para DELETE
+    $stmt = $conn->prepare(
+        "DELETE FROM estudiantes WHERE id = ?"
+    );
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+
+    $stmt->close();
 }
 
 // ─── EJECUCIÓN (no modificar el formato de salida) ──────────────────────────
