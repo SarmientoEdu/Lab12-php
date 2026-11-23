@@ -13,8 +13,7 @@ $datos = generar_datos(SEMILLA);
 // Recibe el nombre por GET (vulnerable a SQLi)
 $nombre_buscar = $_GET['nombre'] ?? $datos['nombre'];
 
-// INSEGURO: vulnerable a SQLi - el valor se concatena directamente
-$sql = "SELECT * FROM estudiantes WHERE nombre = '$nombre_buscar'";
+$sql = "SELECT * FROM estudiantes WHERE nombre = '$nombre_buscar'"; // INSEGURO: vulnerable a SQLi - el valor se concatena directamente
 $resultado = $conn->query($sql);
 
 echo "<h2>Búsqueda (INSEGURA)</h2>";
