@@ -16,12 +16,18 @@ if ($total == 0) {
     sembrar_datos($conn);
 }
 
-// TODO: Obtener todos los estudiantes con sentencia preparada (SELECT * FROM estudiantes)
-// $stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
-// $stmt->execute();
-// $resultado = $stmt->get_result();
+$stmt = $conn->prepare("SELECT * FROM estudiantes ORDER BY id");
+$stmt->execute();
+$resultado = $stmt->get_result();
 
+// Guardar las filas en un array para usarlas en el HTML
+$estudiantes = [];
+while ($fila = $resultado->fetch_assoc()) {
+    $estudiantes[] = $fila;
+}
+$stmt->close();
 $conn->close();
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -38,9 +44,34 @@ $conn->close();
 
     <h1>Lista de Estudiantes</h1>
 
-    <!-- TODO: Mostrar tabla con columnas: ID | Nombre | Nota | Acciones -->
-    <!-- TODO: Clase CSS en <tr>: nota-alta (>=90), nota-media (70-89), nota-baja (<70) -->
-    <!-- TODO: En Acciones: enlaces a editar.php?id=X y eliminar.php?id=X -->
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Nota</th>
+            <th>Acciones</th>
+        </tr>
+        <?php foreach ($estudiantes as $e): ?>
+            <?php
+                if ($e['nota'] >= 90) {
+                    $clase = 'nota-alta';
+                } elseif ($e['nota'] >= 70) {
+                    $clase = 'nota-media';
+                } else {
+                    $clase = 'nota-baja';
+                }
+            ?>
+            <tr class="<?= $clase ?>">
+                <td><?= $e['id'] ?></td>
+                <td><?= htmlspecialchars($e['nombre']) ?></td>
+                <td><?= number_format($e['nota'], 2) ?></td>
+                <td>
+                    <a href="editar.php?id=<?= $e['id'] ?>">Editar</a>
+                    <a href="eliminar.php?id=<?= $e['id'] ?>">Eliminar</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
 
 </body>
 </html>

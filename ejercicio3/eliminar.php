@@ -1,7 +1,7 @@
 <?php
 /**
  * Lab 12 - Ejercicio 3: Eliminar estudiante
- * Implementa las secciones marcadas con TODO.
+ * Confirmación + DELETE con sentencia preparada.
  */
 require_once '../ejercicio1/config_db.php';
 
@@ -13,16 +13,37 @@ if ($id <= 0) {
     exit;
 }
 
-// TODO: Cargar nombre del estudiante con sentencia preparada (para mostrarlo en la confirmación)
-$nombre_estudiante = "ID $id"; // Elimina cuando implementes
+// 1) Cargar el nombre del estudiante para mostrarlo en la confirmación
+$stmt = $conn->prepare("SELECT nombre FROM estudiantes WHERE id = ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$fila = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
+// Si el id no existe, volver a la lista
+if (!$fila) {
+    $conn->close();
+    header('Location: index.php');
+    exit;
+}
+$nombre_estudiante = $fila['nombre'];
+
+// 2) Si el usuario confirmó, eliminar
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar'])) {
-    // TODO: DELETE con sentencia preparada
-    // TODO: Redirigir a index.php
+    // DELETE con sentencia preparada
+    $stmt = $conn->prepare("DELETE FROM estudiantes WHERE id = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $stmt->close();
+    $conn->close();
+
+    header('Location: index.php');
+    exit;
 }
 
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
