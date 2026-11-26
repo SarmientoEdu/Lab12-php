@@ -1,23 +1,45 @@
 <?php
-/**
- * Lab 12 - Ejercicio 3: Agregar estudiante
- * Implementa las secciones marcadas con TODO.
- */
-require_once '../ejercicio1/config_db.php';
+require_once __DIR__ . '/../ejercicio1/config_db.php';
 
 $error = '';
+$nombre = '';
+$nota = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre'] ?? '');
-    $nota   = $_POST['nota'] ?? '';
+    $nota = trim($_POST['nota'] ?? '');
 
-    // TODO: Validar que $nombre no esté vacío y que $nota esté entre 0 y 100
-    // Si hay error, guardar mensaje en $error
+    if ($nombre === '') {
+        $error = 'El nombre no puede estar vacio.';
+    } elseif (!is_numeric($nota) || (float)$nota < 0 || (float)$nota > 100) {
+        $error = 'La nota debe ser un numero entre 0 y 100.';
+    }
 
-    if (empty($error)) {
+    if ($error === '') {
         $conn = conectar();
-        // TODO: Insertar con sentencia preparada (prepare/bind_param/execute)
-        // TODO: Redirigir a index.php con header('Location: index.php'); exit;
+
+        $stmt = $conn->prepare(
+            'INSERT INTO estudiantes (nombre, nota) VALUES (?, ?)'
+        );
+
+        if ($stmt) {
+            $nota_numero = (float)$nota;
+            $stmt->bind_param('sd', $nombre, $nota_numero);
+
+            if ($stmt->execute()) {
+                $stmt->close();
+                $conn->close();
+                header('Location: index.php');
+                exit;
+            } else {
+                $error = 'No se pudo guardar el estudiante.';
+            }
+
+            $stmt->close();
+        } else {
+            $error = 'No se pudo preparar la consulta.';
+        }
+
         $conn->close();
     }
 }
@@ -31,25 +53,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <nav>
-        <a href="index.php">← Volver a la lista</a>
+        <a href="index.php">Lista de Estudiantes</a>
+        <a href="agregar.php">Agregar Estudiante</a>
     </nav>
 
     <h1>Agregar Estudiante</h1>
 
-    <?php if ($error): ?>
-        <div class="error"><?= htmlspecialchars($error) ?></div>
+    <?php if ($error !== ''): ?>
+        <div class="error">
+            <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+        </div>
     <?php endif; ?>
 
     <form method="POST" action="agregar.php">
         <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre"
-               value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>" required>
+        <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') ?>"
+            required
+        >
 
-        <label for="nota">Nota (0–100):</label>
-        <input type="number" id="nota" name="nota" min="0" max="100" step="0.01"
-               value="<?= htmlspecialchars($_POST['nota'] ?? '') ?>" required>
+        <label for="nota">Nota (0 a 100):</label>
+        <input
+            type="number"
+            id="nota"
+            name="nota"
+            min="0"
+            max="100"
+            step="0.01"
+            value="<?= htmlspecialchars($nota, ENT_QUOTES, 'UTF-8') ?>"
+            required
+        >
 
-        <button type="submit">Agregar</button>
+        <button type="submit">Guardar estudiante</button>
     </form>
 </body>
 </html>
