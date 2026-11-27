@@ -13,20 +13,33 @@ $nota_minima = 60.00;
 
 // TODO: Llamar al procedimiento sp_insertar_estudiante
 // con $datos['nombre'] y $datos['nota']
-// Pista: $conn->query("CALL sp_insertar_estudiante(?, ?)") con sentencia preparada
-//        O bien: $conn->query("CALL sp_insertar_estudiante('{$datos['nombre']}', {$datos['nota']})")
-//        (en este caso el valor no viene del usuario, sino de la semilla; justifica tu elección)
+$stmtInsert = $conn->prepare("CALL sp_insertar_estudiante(?, ?)");
+$stmtInsert->bind_param('sd', $datos['nombre'], $datos['nota']);
+$stmtInsert->execute();
+$stmtInsert->close();
 
-// TODO: Mostrar mensaje de confirmación con el formato exacto:
-// "Procedimiento ejecutado: sp_insertar_estudiante('{nombre}', {nota})"
+while ($conn->more_results() && $conn->next_result()) {
+    if ($resExtra = $conn->store_result()) {
+        $resExtra->free();
+    }
+}
+
+$notaFormateada = number_format((float)$datos['nota'], 2, '.', '');
+$mensajeConfirmacion = "Procedimiento ejecutado: sp_insertar_estudiante('{$datos['nombre']}', {$notaFormateada})";
 
 // TODO: Llamar a sp_reporte_aprobados con $nota_minima
+$stmtReporte = $conn->prepare("CALL sp_reporte_aprobados(?)");
+$stmtReporte->bind_param('d', $nota_minima);
+$stmtReporte->execute();
+$resultado = $stmtReporte->get_result();
+$estudiantes = $resultado ? $resultado->fetch_all(MYSQLI_ASSOC) : [];
+$stmtReporte->close();
 
-// TODO: Mostrar los resultados en una tabla HTML con:
-//   - clase CSS "tabla-reporte" en el <table>
-//   - clase "fila-aprobado" en <tr> si nota >= 70
-//   - clase "fila-minimo" en <tr> si nota < 70
-//   - columnas: ID | Nombre | Nota
+while ($conn->more_results() && $conn->next_result()) {
+    if ($resExtra = $conn->store_result()) {
+        $resExtra->free();
+    }
+}
 
 $conn->close();
 ?>
@@ -39,12 +52,32 @@ $conn->close();
         /* TODO: Agregar estilos para .tabla-reporte, .fila-aprobado, .fila-minimo */
         body { font-family: Arial, sans-serif; margin: 20px; }
         .tabla-reporte { border-collapse: collapse; width: 100%; }
-        .tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; }
+        .tabla-reporte th, .tabla-reporte td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         .tabla-reporte th { background-color: #4a90d9; color: white; }
         /* TODO: .fila-aprobado y .fila-minimo */
+        .fila-aprobado { background-color: #e8f5e9; }
+        .fila-minimo { background-color: #fff8e1; }
     </style>
 </head>
 <body>
-    <!-- El PHP de arriba genera la salida aquí -->
+    <!-- TODO: Mostrar mensaje de confirmación con el formato exacto -->
+    <p><?= htmlspecialchars($mensajeConfirmacion) ?></p>
+
+    <!-- TODO: Mostrar los resultados en una tabla HTML -->
+    <table class="tabla-reporte">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Nota</th>
+        </tr>
+        <?php foreach ($estudiantes as $fila): ?>
+            <?php $claseFila = ((float)$fila['nota'] >= 70) ? 'fila-aprobado' : 'fila-minimo'; ?>
+            <tr class="<?= $claseFila ?>">
+                <td><?= (int)$fila['id'] ?></td>
+                <td><?= htmlspecialchars($fila['nombre']) ?></td>
+                <td><?= number_format((float)$fila['nota'], 2, '.', '') ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
 </body>
 </html>
