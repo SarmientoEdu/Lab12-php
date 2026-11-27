@@ -13,12 +13,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // TODO: Validar que $nombre no esté vacío y que $nota esté entre 0 y 100
     // Si hay error, guardar mensaje en $error
+    if ($nombre === '') {
+        $error = 'El nombre es obligatorio.';
+    } elseif ($nota === '' || !is_numeric($nota) || (float)$nota < 0 || (float)$nota > 100) {
+        $error = 'La nota debe ser un número entre 0 y 100.';
+    }
 
     if (empty($error)) {
         $conn = conectar();
         // TODO: Insertar con sentencia preparada (prepare/bind_param/execute)
         // TODO: Redirigir a index.php con header('Location: index.php'); exit;
+        $notaFloat = round((float)$nota, 2);
+        $stmt = $conn->prepare("INSERT INTO estudiantes (nombre, nota) VALUES (?, ?)");
+        $stmt->bind_param('sd', $nombre, $notaFloat);
+        $stmt->execute();
+        $stmt->close();
         $conn->close();
+
+        header('Location: index.php');
+        exit;
     }
 }
 ?>

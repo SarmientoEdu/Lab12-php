@@ -15,22 +15,41 @@ if ($id <= 0) {
 }
 
 // TODO: Cargar datos del estudiante con sentencia preparada usando $id
-// $stmt = $conn->prepare("SELECT * FROM estudiantes WHERE id = ?");
-// $stmt->bind_param('i', $id);
-// $stmt->execute();
-// $estudiante = $stmt->get_result()->fetch_assoc();
-// if (!$estudiante) { header('Location: index.php'); exit; }
-$estudiante = ['id' => $id, 'nombre' => '', 'nota' => '']; // Elimina cuando implementes
+$stmt = $conn->prepare("SELECT * FROM estudiantes WHERE id = ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$estudiante = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$estudiante) {
+    $conn->close();
+    header('Location: index.php');
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre'] ?? '');
     $nota   = $_POST['nota'] ?? '';
 
     // TODO: Validar campos (igual que agregar.php)
+    if ($nombre === '') {
+        $error = 'El nombre es obligatorio.';
+    } elseif ($nota === '' || !is_numeric($nota) || (float)$nota < 0 || (float)$nota > 100) {
+        $error = 'La nota debe ser un número entre 0 y 100.';
+    }
 
     if (empty($error)) {
         // TODO: UPDATE con sentencia preparada
         // TODO: Redirigir a index.php
+        $notaFloat = round((float)$nota, 2);
+        $stmtUpdate = $conn->prepare("UPDATE estudiantes SET nombre = ?, nota = ? WHERE id = ?");
+        $stmtUpdate->bind_param('sdi', $nombre, $notaFloat, $id);
+        $stmtUpdate->execute();
+        $stmtUpdate->close();
+        $conn->close();
+
+        header('Location: index.php');
+        exit;
     }
 }
 
